@@ -1,1 +1,21 @@
-.
+
+name: MagnetKitApp
+
+options:
+  bundleIdPrefix: com.speedy7jk
+
+targets:
+  MagnetKitApp:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: .
+        excludes:
+          - project.yml
+    info:
+      path: Info.plist
+      properties:
+        UILaunchScreen: {}
+        UIRequiredDeviceCapabilities:
+          - arm64
