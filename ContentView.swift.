@@ -1,0 +1,67 @@
+
+import SwiftUI
+import CoreMotion
+
+struct ContentView: View {
+    private let motion = CMMotionManager()
+
+    @State private var field = 0.0
+    @State private var baseline = 0.0
+    @State private var started = false
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Image(systemName: "magnet.fill")
+                .font(.system(size: 64))
+                .foregroundStyle(.cyan)
+
+            Text("Real Magnet Detector")
+                .font(.largeTitle.bold())
+
+            Text(started ? "Scanning magnetic field" : "Ready to scan")
+                .foregroundStyle(.secondary)
+
+            Text(String(format: "%.1f µT", field))
+                .font(.system(size: 38, weight: .bold, design: .rounded))
+
+            Text(
+                started
+                ? String(format: "Change from baseline: %.1f µT",
+                         field - baseline)
+                : "Tap Start, then move a magnet near your iPhone."
+            )
+            .multilineTextAlignment(.center)
+
+            Button(started ? "Stop scanning" : "Start scanning") {
+                if started {
+                    motion.stopMagnetometerUpdates()
+                    started = false
+                } else {
+                    startScanning()
+                }
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.cyan)
+        }
+        .padding(28)
+    }
+
+    private func startScanning() {
+        guard motion.isMagnetometerAvailable else { return }
+
+        motion.magnetometerUpdateInterval = 0.1
+        motion.startMagnetometerUpdates(to: .main) { data, error in
+            guard let data, error == nil else { return }
+
+            let m = data.magneticField
+            let magnitude = sqrt(m.x*m.x + m.y*m.y + m.z*m.z)
+
+            field = magnitude
+
+            if !started {
+                baseline = magnitude
+                started = true
+            }
+        }
+    }
+}
